@@ -11,6 +11,8 @@ object TwitterStreamApp extends App {
 
   twitterStream.addListener(listener)
   twitterStream.sample("en")
-  //twitterStream.filter("java","scala","akka","spark")
+  twitterStream.filter("startbucks","sbux","startbuck",
+    "coffestartbuck","coffee","StarbucksUK","StarbucksCanada","StarbucksMY",
+    "StarbucksIndia","StarbucksIE","StarbucksAu","StarbucksFrance","StarbucksMex","StarBucksTweet")
 
 }

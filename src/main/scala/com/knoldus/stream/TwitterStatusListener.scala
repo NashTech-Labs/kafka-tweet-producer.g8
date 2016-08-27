@@ -43,11 +43,9 @@ class TwitterStatusListener extends StatusListener with JsonHelper {
   private def getAllField(status: Status): Map[String, String] = {
     val text = status.getText().replaceAll("\n", " ")
     Map(
-      "text_id" -> status.getId().toString,
+      "id" -> status.getId().toString,
       "media_type" -> "twitter",
-      "text_source" -> status.getSource(),
-      "author_name" -> Option(status.getUser).fold(EMPTY_STRING)(_.getName),
-      "author_username" -> Option(status.getUser).fold(EMPTY_STRING)(_.getName),
+      "author_username" -> Option(status.getUser).fold(EMPTY_STRING)(_.getScreenName),
       "text" -> text,
       "clean_text" -> Jsoup.parse(text).text(),
       "created_at" -> status.getCreatedAt().toString,
