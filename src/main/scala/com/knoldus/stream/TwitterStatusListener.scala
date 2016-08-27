@@ -1,21 +1,23 @@
 package com.knoldus.stream
 
 
-import org.jsoup.Jsoup
-import twitter4j.{StatusListener, _}
 import com.knoldus.kafka.producer.Producer
+import org.jsoup.Jsoup
 import org.slf4j.{Logger, LoggerFactory}
+import twitter4j.{StatusListener, _}
 
 class TwitterStatusListener extends StatusListener with JsonHelper {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass())
 
-  val kafkaProducer =Producer("localhost:9092")
+  val kafkaProducer = Producer("localhost:9092")
 
   val EMPTY_STRING = ""
 
   def onStatus(status: Status) {
-    kafkaProducer.send("tweet_queue", write(getAllField(status)))
+    logger.info("Got tweet from user " + Option(status.getUser).fold("Unknown")(_.getName))
+    val tweetJson = write(getAllField(status))
+    kafkaProducer.send("tweet_queue", tweetJson)
   }
 
   def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {
@@ -35,7 +37,7 @@ class TwitterStatusListener extends StatusListener with JsonHelper {
   }
 
   def onException(ex: Exception) {
-    logger.error("Error in getting tweet",ex)
+    logger.error("Error in getting tweet", ex)
   }
 
   private def getAllField(status: Status): Map[String, String] = {
