@@ -1,24 +1,24 @@
 package com.knoldus.stream
 
 
-import com.knoldus.kafka.producer.Producer
+import akka.actor.ActorRef
+import com.knoldus.stream.StreamHandler.Tweet
 import org.jsoup.Jsoup
 import org.slf4j.{Logger, LoggerFactory}
 import twitter4j.{StatusListener, _}
 
-class TwitterStatusListener extends StatusListener with JsonHelper {
+class TwitterStatusListener(streamHandler: ActorRef) extends StatusListener {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass())
-
-  val kafkaProducer = Producer("localhost:9092")
 
   val EMPTY_STRING = ""
 
   def onStatus(status: Status) {
     logger.info("Got tweet from user " + Option(status.getUser).fold("Unknown")(_.getName))
-    val tweetJson = write(getAllField(status))
-    kafkaProducer.send("tweet_queue", tweetJson)
+    val tweet = Tweet(getAllField(status))
+    streamHandler ! tweet
   }
+
 
   def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {
     logger.info("Got a status deletion notice id:" + statusDeletionNotice.getStatusId)
@@ -54,4 +54,5 @@ class TwitterStatusListener extends StatusListener with JsonHelper {
 
   }
 }
+
 

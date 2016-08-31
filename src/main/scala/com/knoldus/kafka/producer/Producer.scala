@@ -2,18 +2,23 @@ package com.knoldus.kafka.producer
 
 
 import java.util.Properties
-import java.util.concurrent.Future
 
+import akka.actor.ActorSystem
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.{Logger, LoggerFactory}
 
+import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
+import scala.util.Try
 
-case class Producer(servers: String) {
+
+case class Producer(servers: String, dispatcher: ExecutionContextExecutor) {
+
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass())
 
   private val props: Properties = new Properties
+
   props.put("bootstrap.servers", servers)
   props.put("acks", "all")
   props.put("retries", "5")
@@ -26,16 +31,16 @@ case class Producer(servers: String) {
   def send(topic: String, record: String): Future[RecordMetadata] = {
     val message: ProducerRecord[String, String] = new ProducerRecord[String, String](topic, record, record)
     logger.info("Sending message to kafka cluster .....")
-    /*convert into scala future
-     val recordMetadataResponse = producer.send(message)
-        val promise = Promise[RecordMetadata]()
-        Future {
-          promise.complete(Try(recordMetadataResponse.get()))
-        }
-        promise.future*/
-    producer.send(message)
+    val recordMetadataResponse = producer.send(message)
+    val promise = Promise[RecordMetadata]()
+    Future {
+      promise.complete(Try(recordMetadataResponse.get()))
+    }(dispatcher)
+    promise.future
   }
 
   def close(): Unit = producer.close()
+
 }
+
 
