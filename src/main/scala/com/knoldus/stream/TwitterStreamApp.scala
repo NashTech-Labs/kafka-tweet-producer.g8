@@ -33,9 +33,9 @@ object TwitterStreamApp extends App {
   kafkaProducerActor.flatMap { producerActor =>
     (supervisor ? (StreamHandler.props(producerActor, topic), "streamHandler")).mapTo[ActorRef]
   }.onComplete {
-    case Success(producerActor) =>
+    case Success(streamHandler) =>
       val twitterStream: TwitterStream = new TwitterStreamFactory().getInstance
-      val listener: StatusListener = new TwitterStatusListener(producerActor)
+      val listener: StatusListener = new TwitterStatusListener(streamHandler)
       twitterStream.addListener(listener)
       twitterStream.sample("en")
       twitterStream.filter("startbucks", "sbux", "startbuck",
