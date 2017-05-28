@@ -1,17 +1,12 @@
-name := """kafka-tweet-producer"""
-
-version := "1.0"
-
-scalaVersion := "2.11.8"
-
-libraryDependencies ++= Seq(
-                         "org.twitter4j" % "twitter4j-stream" % "4.0.4",
-                         "com.typesafe.akka" %% "akka-actor" % "2.4.9",
-                         "org.jsoup" % "jsoup" % "1.9.2",
-                         "org.json4s" %% "json4s-native" % "3.4.0",
-                         "ch.qos.logback" % "logback-classic" % "1.1.7",
-                         "org.apache.kafka" % "kafka-clients" % "0.10.0.1",
-                         "org.scalatest" %% "scalatest" % "3.0.0" % "test"
-                         )
-
-
+// This build is for this Giter8 template.
+// To test the template run `g8` or `g8Test` from the sbt session.
+// See http://www.foundweekends.org/giter8/testing.html#Using+the+Giter8Plugin for more details.
+lazy val root = (project in file(".")).
+  settings(
+    name := "kafka-tweet-producer",
+    test in Test := {
+      val _ = (g8Test in Test).toTask("").value
+    },
+    scriptedLaunchOpts ++= List("-Xms1024m", "-Xmx1024m", "-XX:ReservedCodeCacheSize=128m", "-XX:MaxPermSize=256m", "-Xss2m", "-Dfile.encoding=UTF-8"),
+    resolvers += Resolver.url("typesafe", url("http://repo.typesafe.com/typesafe/ivy-releases/"))(Resolver.ivyStylePatterns)
+  )
